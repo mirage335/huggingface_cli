@@ -36,7 +36,7 @@ _ub_cksum_special_derivativeScripts_contents() {
 #export ub_setScriptChecksum_disable='true'
 ( [[ -e "$0".nck ]] || [[ "${BASH_SOURCE[0]}" != "${0}" ]] || [[ "$1" == '--profile' ]] || [[ "$1" == '--script' ]] || [[ "$1" == '--call' ]] || [[ "$1" == '--return' ]] || [[ "$1" == '--devenv' ]] || [[ "$1" == '--shell' ]] || [[ "$1" == '--bypass' ]] || [[ "$1" == '--parent' ]] || [[ "$1" == '--embed' ]] || [[ "$1" == '--compressed' ]] || [[ "$0" == "/bin/bash" ]] || [[ "$0" == "-bash" ]] || [[ "$0" == "/usr/bin/bash" ]] || [[ "$0" == "bash" ]] ) && export ub_setScriptChecksum_disable='true'
 export ub_setScriptChecksum_header='2591634041'
-export ub_setScriptChecksum_contents='4249256842'
+export ub_setScriptChecksum_contents='2881951898'
 
 # CAUTION: Symlinks may cause problems. Disable this test for such cases if necessary.
 # WARNING: Performance may be crucial here.
@@ -55193,6 +55193,45 @@ _package() {
 
 ##### Core
 
+_huggingface_cli() {
+    export dependencies_nix_python=( "readline" )
+    export packages_nix_python=( "huggingface_hub[cli]" )
+
+    export dependencies_msw_python=( "pyreadline3" )
+    export packages_msw_python=( "huggingface_hub[cli]" )
+
+    export dependencies_cyg_python=( "readline" )
+    export packages_cyg_python=( "huggingface_hub[cli]" )
+
+    # Discouraged. Should be preferable, more convenient, etc, to use 'huggingface-cli' already built into 'ubcp'.
+    if _if_cygwin
+    then
+        #implies sequence
+        _prepare_msw_python
+        type -p huggingface-cli > /dev/null >&2
+        huggingface-cli "$@"
+        return
+    fi
+
+    #implies sequence
+    _prepare_nix_python
+    type -p huggingface-cli > /dev/null >&2
+    huggingface-cli "$@"
+    return
+}
+
+
+_test_prog() {
+    # NOT tested by '_test' by default due to only novel dependencies being possibly manual dependencies.
+    # Override with 'core.sh' or similar, and call with '_test_prog' or similar.
+    "$scriptAbsoluteLocation" _test_special_python
+}
+
+
+_refresh_anchors() {
+    cp -a "$scriptAbsoluteFolder"/_anchor "$scriptAbsoluteFolder"/_huggingface_cli
+    cp -a "$scriptAbsoluteFolder"/_anchor.bat "$scriptAbsoluteFolder"/_huggingface_cli.bat
+}
 
 #####Program
 
@@ -57171,6 +57210,13 @@ _generate_compile_bash_prog() {
 	#"$scriptAbsoluteLocation" _compile_bash ubiquitous_bash ubiquitous_bash.sh
 	
 	#"$scriptAbsoluteLocation" _package
+}
+_generate_lean-python_prog() {
+	return 0
+	
+	#[[ "$objectName" == "ubiquitous_bash" ]] && return 0
+	
+	#return 1
 }
 
 #Default is to include all, or run a specified configuration. For this reason, it will be more typical to override this entire function, rather than append any additional code.

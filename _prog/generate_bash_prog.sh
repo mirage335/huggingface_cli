@@ -15,3 +15,10 @@ _generate_compile_bash_prog() {
 	
 	#"$scriptAbsoluteLocation" _package
 }
+_generate_lean-python_prog() {
+	return 0
+	
+	#[[ "$objectName" == "ubiquitous_bash" ]] && return 0
+	
+	#return 1
+}
