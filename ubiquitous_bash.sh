@@ -36,7 +36,7 @@ _ub_cksum_special_derivativeScripts_contents() {
 #export ub_setScriptChecksum_disable='true'
 ( [[ -e "$0".nck ]] || [[ "${BASH_SOURCE[0]}" != "${0}" ]] || [[ "$1" == '--profile' ]] || [[ "$1" == '--script' ]] || [[ "$1" == '--call' ]] || [[ "$1" == '--return' ]] || [[ "$1" == '--devenv' ]] || [[ "$1" == '--shell' ]] || [[ "$1" == '--bypass' ]] || [[ "$1" == '--parent' ]] || [[ "$1" == '--embed' ]] || [[ "$1" == '--compressed' ]] || [[ "$0" == "/bin/bash" ]] || [[ "$0" == "-bash" ]] || [[ "$0" == "/usr/bin/bash" ]] || [[ "$0" == "bash" ]] ) && export ub_setScriptChecksum_disable='true'
 export ub_setScriptChecksum_header='2591634041'
-export ub_setScriptChecksum_contents='2881951898'
+export ub_setScriptChecksum_contents='3754175991'
 
 # CAUTION: Symlinks may cause problems. Disable this test for such cases if necessary.
 # WARNING: Performance may be crucial here.
@@ -18365,8 +18365,8 @@ _demo_msw_python() {
 # ATTENTION: EXAMPLE. Override or implement alternative with 'core.sh', 'ops.sh', or similar.
 # ATTENTION: Also create "$scriptLib"/python/lean.py .
 _nix_python() {
-    export dependencies_nix_python=( "readline" )
-    export packages_nix_python=( "huggingface_hub[cli]" )
+    #export dependencies_nix_python=( "readline" )
+    #export packages_nix_python=( "huggingface_hub[cli]" )
 
     #implies sequence
     _prepare_nix_python
@@ -18707,8 +18707,10 @@ _morsels_nix_pip_python_3() {
 
     for currentPackage in "${currentPackages_list[@]}"
     do
-        #,win32,win_arm64
-        [[ "$nonet" != "true" ]] && [[ "$nonet_available" != "true" ]] && pip download "$currentPackage" --platform win_amd64 --only-binary=:all: --dest "$scriptAbsoluteFolder"/_bundle/morsels/pip > /dev/null >&2
+        [[ "$nonet" != "true" ]] && [[ "$nonet_available" != "true" ]] && pip download "$currentPackage" --platform linux_x86_64 --only-binary=:all: --dest "$scriptAbsoluteFolder"/_bundle/morsels/pip > /dev/null >&2
+        [[ "$nonet" != "true" ]] && [[ "$nonet_available" != "true" ]] && pip download "$currentPackage" --platform manylinux2014_x86_64 --only-binary=:all: --dest "$scriptAbsoluteFolder"/_bundle/morsels/pip > /dev/null >&2
+        [[ "$nonet" != "true" ]] && [[ "$nonet_available" != "true" ]] && pip download "$currentPackage" --platform manylinux1 --only-binary=:all: --dest "$scriptAbsoluteFolder"/_bundle/morsels/pip > /dev/null >&2
+        [[ "$nonet" != "true" ]] && [[ "$nonet_available" != "true" ]] && pip download "$currentPackage" --platform any --only-binary=:all: --dest "$scriptAbsoluteFolder"/_bundle/morsels/pip > /dev/null >&2
         
         #pip install --no-index --find-links="$scriptAbsoluteFolder"/_bundle/morsels/pip "$currentPackage" > /dev/null >&2
         pip install --no-index --find-links="$scriptAbsoluteFolder"/_bundle/morsels/pip "$currentPackage" > /dev/null 2>&1
@@ -18859,7 +18861,7 @@ _install_dependencies_nix_python_procedure-specific() {
                 #--no-deps
                 #--python-version 3.1
                 "$1"pip download "$3" --platform linux_x86_64 --no-deps --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
-                #"$1"pip download "$3" --platform manylinux2014_x86_64 --no-deps --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
+                "$1"pip download "$3" --platform manylinux2014_x86_64 --no-deps --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
                 "$1"pip download "$3" --platform manylinux1 --no-deps --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
                 "$1"pip download "$3" --platform any --no-deps --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
                 
@@ -18870,7 +18872,7 @@ _install_dependencies_nix_python_procedure-specific() {
 
                 
                 "$1"pip download "$3" --platform linux_x86_64 --only-binary=:all: --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
-                #"$1"pip download "$3" --platform manylinux2014_x86_64 --only-binary=:all: --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
+                "$1"pip download "$3" --platform manylinux2014_x86_64 --only-binary=:all: --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
                 "$1"pip download "$3" --platform manylinux1 --only-binary=:all: --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
                 "$1"pip download "$3" --platform any --only-binary=:all: --dest "$lib_dir_nix_python_wheels" > /dev/null >&2
                 
@@ -55193,15 +55195,21 @@ _package() {
 
 ##### Core
 
-_huggingface_cli() {
+_special_packages() {
     export dependencies_nix_python=( "readline" )
     export packages_nix_python=( "huggingface_hub[cli]" )
 
     export dependencies_msw_python=( "pyreadline3" )
     export packages_msw_python=( "huggingface_hub[cli]" )
-
+        
     export dependencies_cyg_python=( "readline" )
     export packages_cyg_python=( "huggingface_hub[cli]" )
+
+    true
+}
+
+_huggingface_cli() {
+    _special_packages
 
     # Discouraged. Should be preferable, more convenient, etc, to use 'huggingface-cli' already built into 'ubcp'.
     if _if_cygwin
@@ -55209,6 +55217,19 @@ _huggingface_cli() {
         #implies sequence
         _prepare_msw_python
         type -p huggingface-cli > /dev/null >&2
+        huggingface-cli "$@"
+        return
+    fi
+
+    local dumbpath_file="$scriptLocal"/"$dumbpath_prefix"dumbpath.var
+    local dumbpath_contents=""
+    dumbpath_contents=$(cat "$dumbpath_file" 2> /dev/null)
+    if [[ "$dumbpath_contents" == "$dumbpath_file" ]]
+    then
+        #implies sequence
+        #source "$scriptLocal"/python_nix/venv/default_venv/bin/activate
+        source "$scriptLocal"/python_nix/venv/default_venv/bin/activate_nix
+        #type -p huggingface-cli > /dev/null >&2
         huggingface-cli "$@"
         return
     fi
